@@ -129,7 +129,6 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
-
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
             {
