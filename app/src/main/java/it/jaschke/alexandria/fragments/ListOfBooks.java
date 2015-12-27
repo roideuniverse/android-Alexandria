@@ -1,4 +1,4 @@
-package it.jaschke.alexandria;
+package it.jaschke.alexandria.fragments;
 
 import android.app.Activity;
 import android.database.Cursor;
@@ -14,6 +14,7 @@ import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 
+import it.jaschke.alexandria.R;
 import it.jaschke.alexandria.api.BookListAdapter;
 import it.jaschke.alexandria.api.Callback;
 import it.jaschke.alexandria.data.AlexandriaContract;
@@ -129,7 +130,6 @@ public class ListOfBooks extends Fragment implements LoaderManager.LoaderCallbac
 
         bookList.setOnItemClickListener(new AdapterView.OnItemClickListener()
         {
-
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int position, long l)
             {
