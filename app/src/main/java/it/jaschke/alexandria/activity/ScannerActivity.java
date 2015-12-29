@@ -1,25 +1,29 @@
 package it.jaschke.alexandria.activity;
 
+import android.animation.Animator;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.res.Resources;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.View;
-import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.TextView;
+import android.widget.Toast;
+
+import net.sourceforge.zbar.Config;
+import net.sourceforge.zbar.Image;
+import net.sourceforge.zbar.ImageScanner;
+import net.sourceforge.zbar.Symbol;
+import net.sourceforge.zbar.SymbolSet;
 
 import it.jaschke.alexandria.CameraPreview.CameraPreview;
 import it.jaschke.alexandria.R;
 
 /* Import ZBar Class files */
-import net.sourceforge.zbar.ImageScanner;
-import net.sourceforge.zbar.Image;
-import net.sourceforge.zbar.Symbol;
-import net.sourceforge.zbar.SymbolSet;
-import net.sourceforge.zbar.Config;
 
 
 /**
@@ -27,34 +31,35 @@ import net.sourceforge.zbar.Config;
  */
 public class ScannerActivity extends Activity
 {
+    public static final String RESULT_BARCODE = "barcode";
 
-    public static void launch(Activity activity)
+    public static void launchForResult(Fragment fragment, int requestCode)
     {
-        Intent i = new Intent(activity, ScannerActivity.class);
-        activity.startActivity(i);
+        Intent i = new Intent(fragment.getActivity(), ScannerActivity.class);
+        fragment.startActivityForResult(i, requestCode);
     }
+
+    private View mScannerBar;
+    int mSize = 0;
+    int mDuration = 2000;
 
     private Camera mCamera;
     private CameraPreview mPreview;
     private Handler autoFocusHandler;
-
-    TextView scanText;
-    Button scanButton;
-
     ImageScanner scanner;
 
     private boolean barcodeScanned = false;
     private boolean previewing = true;
 
-    static {
+    static
+    {
         System.loadLibrary("iconv");
     }
 
-    public void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState)
+    {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_scanner);
-
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         autoFocusHandler = new Handler();
@@ -66,44 +71,39 @@ public class ScannerActivity extends Activity
         scanner.setConfig(0, Config.Y_DENSITY, 3);
 
         mPreview = new CameraPreview(this, mCamera, previewCb, autoFocusCB);
-        FrameLayout preview = (FrameLayout)findViewById(R.id.cameraPreview);
+        FrameLayout preview = (FrameLayout) findViewById(R.id.cameraPreview);
         preview.addView(mPreview);
 
-        scanText = (TextView)findViewById(R.id.scanText);
-
-        scanButton = (Button)findViewById(R.id.ScanButton);
-
-        scanButton.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (barcodeScanned) {
-                    barcodeScanned = false;
-                    scanText.setText("Scanning...");
-                    mCamera.setPreviewCallback(previewCb);
-                    mCamera.startPreview();
-                    previewing = true;
-                    mCamera.autoFocus(autoFocusCB);
-                }
-            }
-        });
+        mScannerBar = findViewById(R.id.scanner_bar);
+        firstDownAnimation();
     }
 
-    public void onPause() {
+    public void onPause()
+    {
         super.onPause();
         releaseCamera();
     }
 
-    /** A safe way to get an instance of the Camera object. */
-    public static Camera getCameraInstance(){
+    /**
+     * A safe way to get an instance of the Camera object.
+     */
+    public static Camera getCameraInstance()
+    {
         Camera c = null;
-        try {
+        try
+        {
             c = Camera.open();
-        } catch (Exception e){
+        }
+        catch(Exception e)
+        {
         }
         return c;
     }
 
-    private void releaseCamera() {
-        if (mCamera != null) {
+    private void releaseCamera()
+    {
+        if(mCamera != null)
+        {
             previewing = false;
             mCamera.setPreviewCallback(null);
             mCamera.release();
@@ -111,15 +111,21 @@ public class ScannerActivity extends Activity
         }
     }
 
-    private Runnable doAutoFocus = new Runnable() {
-        public void run() {
-            if (previewing)
+    private Runnable doAutoFocus = new Runnable()
+    {
+        public void run()
+        {
+            if(previewing)
+            {
                 mCamera.autoFocus(autoFocusCB);
+            }
         }
     };
 
-    Camera.PreviewCallback previewCb = new Camera.PreviewCallback() {
-        public void onPreviewFrame(byte[] data, Camera camera) {
+    Camera.PreviewCallback previewCb = new Camera.PreviewCallback()
+    {
+        public void onPreviewFrame(byte[] data, Camera camera)
+        {
             Camera.Parameters parameters = camera.getParameters();
             Camera.Size size = parameters.getPreviewSize();
 
@@ -128,24 +134,128 @@ public class ScannerActivity extends Activity
 
             int result = scanner.scanImage(barcode);
 
-            if (result != 0) {
+            if(result != 0)
+            {
                 previewing = false;
                 mCamera.setPreviewCallback(null);
                 mCamera.stopPreview();
 
                 SymbolSet syms = scanner.getResults();
-                for (Symbol sym : syms) {
-                    scanText.setText("barcode result " + sym.getData());
+                for(Symbol sym : syms)
+                {
                     barcodeScanned = true;
+                    String bCode = sym.getData();
+                    //Toast.makeText(getApplicationContext(), "" + barcode, Toast.LENGTH_SHORT).show();
+                    Intent i = new Intent();
+                    i.putExtra(RESULT_BARCODE, bCode);
+                    ScannerActivity.this.setResult(RESULT_OK, i);
+                    ScannerActivity.this.finish();
+                    Log.d("kaushik", "code=" + bCode);
                 }
             }
         }
     };
 
     // Mimic continuous auto-focusing
-    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback() {
-        public void onAutoFocus(boolean success, Camera camera) {
+    Camera.AutoFocusCallback autoFocusCB = new Camera.AutoFocusCallback()
+    {
+        public void onAutoFocus(boolean success, Camera camera)
+        {
             autoFocusHandler.postDelayed(doAutoFocus, 1000);
         }
     };
+
+    private void firstDownAnimation()
+    {
+        Resources res = getResources();
+        mSize = res.getDimensionPixelSize(R.dimen.scanner_view_port_size);
+        mScannerBar.animate().translationY(mSize/2).setDuration(mDuration).setListener(
+                new Animator.AnimatorListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animator animation)
+                    {
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation)
+                    {
+                        upMotion();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation)
+                    {
+
+                    }
+                });
+    }
+
+    private void downMotion()
+    {
+        mScannerBar.animate().translationY(mSize/2).setDuration(mDuration)
+                .setListener(new Animator.AnimatorListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation)
+                    {
+                        upMotion();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
+    }
+
+    private void upMotion()
+    {
+        mScannerBar.animate().translationY(-mSize/2).setDuration(mDuration)
+                .setListener(new Animator.AnimatorListener()
+                {
+                    @Override
+                    public void onAnimationStart(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animation)
+                    {
+                        downMotion();
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animation)
+                    {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animation)
+            {
+
+            }
+        });
+    }
 }

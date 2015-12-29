@@ -10,6 +10,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.util.Patterns;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -37,6 +38,8 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
     private View rootView;
     private String mScanFormat = "Format:";
     private String mScanContents = "Contents:";
+
+    private int BARCODE_REQUEST_CODE = 1;
 
 
     public AddBook()
@@ -190,7 +193,7 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
 
                 Toast toast = Toast.makeText(context, text, duration);
                 toast.show();
-                ScannerActivity.launch(getActivity());
+                ScannerActivity.launchForResult(AddBook.this, BARCODE_REQUEST_CODE);
 
             }
         });
@@ -233,6 +236,21 @@ public class AddBook extends Fragment implements LoaderManager.LoaderCallbacks<C
         if(ean != null)
         {
             outState.putString(EAN_CONTENT, ean.getText().toString());
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data)
+    {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK)
+        {
+            if(requestCode == BARCODE_REQUEST_CODE)
+            {
+                String bData = data.getStringExtra(ScannerActivity.RESULT_BARCODE);
+                Toast.makeText(getActivity(), bData, Toast.LENGTH_SHORT).show();
+                ean.setText(bData);
+            }
         }
     }
 }

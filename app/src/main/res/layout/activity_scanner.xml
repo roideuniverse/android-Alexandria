@@ -1,28 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    >
 
     <FrameLayout
         android:id="@+id/cameraPreview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="1"
         />
 
-    <TextView
-        android:id="@+id/scanText"
-        android:text="Scanning..."
-        android:layout_height="wrap_content"
-        android:layout_width="match_parent">
-    </TextView>
-    <Button
-        android:id="@+id/ScanButton"
-        android:text="Scan"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        />
-</LinearLayout>
+    <it.jaschke.alexandria.view.ScannerView
+        android:id="@+id/scanner_anim_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#50000000"
+        >
+
+        <View
+            android:id="@+id/scanner_bar"
+            android:layout_width="@dimen/scanner_view_port_size"
+            android:layout_height="2dp"
+            android:background="#99cc00"
+            android:layout_centerInParent="true"
+            />
+
+        </it.jaschke.alexandria.view.ScannerView>
+
+</FrameLayout>
