@@ -181,6 +181,11 @@ public class BookService extends IntentService
 
         try
         {
+            if(bookJsonString == null)
+            {
+                //Do an early return
+                return;
+            }
             JSONObject bookJson = new JSONObject(bookJsonString);
             JSONArray bookArray;
             if(bookJson.has(ITEMS))

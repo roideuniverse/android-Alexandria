@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    >
+
+    <FrameLayout
+        android:id="@+id/cameraPreview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        />
+
+    <it.jaschke.alexandria.view.ScannerView
+        android:id="@+id/scanner_anim_container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#50000000"
+        >
+
+        <View
+            android:id="@+id/scanner_bar"
+            android:layout_width="@dimen/scanner_view_port_size"
+            android:layout_height="2dp"
+            android:background="#99cc00"
+            android:layout_centerInParent="true"
+            />
+
+        </it.jaschke.alexandria.view.ScannerView>
+
+</FrameLayout>
