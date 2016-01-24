@@ -7,6 +7,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.ShareActionProvider;
 import android.util.Patterns;
 import android.view.LayoutInflater;
@@ -154,7 +155,7 @@ public class BookDetail extends Fragment implements LoaderManager.LoaderCallback
 
         if(rootView.findViewById(R.id.right_container) != null)
         {
-            rootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
+            //rootView.findViewById(R.id.backButton).setVisibility(View.INVISIBLE);
         }
 
     }
